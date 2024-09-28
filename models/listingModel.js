@@ -5,7 +5,7 @@ const listingSchema = new mongoose.Schema({
   duration: { type: Number, required: true },
   country: { type: String, required: true },
   maxGuests: { type: Number, required: true },
-  booked: { type: Boolean, required: true },
+  booked: { type: Boolean, required: true, default: false },
 });
 
 const Listing = mongoose.model("listing", listingSchema);

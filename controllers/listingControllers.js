@@ -1,47 +1,10 @@
 const mongoose = require("mongoose");
 const Listing = require("../models/listingModel");
 const APIFeatures = require("../utils/APIFeatures");
+const AppError = require("../utils/AppError");
 
 exports.getAllListings = async (req, res) => {
   try {
-    // //FILTERING
-    // let queryObj = { ...req.query };
-    // const excludedObj = ["fields", "limit", "sort", "page"];
-    // excludedObj.forEach((el) => delete queryObj[el]);
-    // const queryStr = JSON.stringify(queryObj).replace(
-    //   /(gte|lte|lt|gt)/,
-    //   (match) => `$${match}`
-    // );
-    // queryObj = JSON.parse(queryStr);
-    // let listings = Listing.find(queryObj);
-
-    // //SORTING
-
-    // if (req.query.sort) {
-    //   const sortQuery = req.query.sort.split(",").join(" ");
-    //   listings = listings.sort(sortQuery);
-    // } else {
-    //   listings = listings.sort("-price");
-    // }
-
-    // // SELECT FIELDS
-    // if (req.query.fields) {
-    //   const fieldsQuery = req.query.fields.split(",").join(" ");
-    //   listings = listings.select(fieldsQuery);
-    // }
-
-    // // LIMITING
-    // const pageNumber = req.query.page * 1 || 1;
-    // const limit = req.query.limit * 1 || 1;
-    // const skip = (pageNumber - 1) * limit;
-    // const totalDoc = await Listing.countDocuments();
-    // const maxPages = totalDoc / limit;
-
-    // if (pageNumber > maxPages || pageNumber < 0 || limit < 0)
-    //   throw new Error("This page does not exist");
-
-    // listings = await listings.skip(skip).limit(limit);
-
     const features = new APIFeatures(Listing, req.query)
       .filter()
       .sort()
@@ -49,9 +12,10 @@ exports.getAllListings = async (req, res) => {
     // .paginate();
 
     const listings = await features.query;
+
     res.status(200).json({
       status: "success",
-      // results: listings.length,
+      results: listings.length,
       data: {
         listings,
       },
@@ -62,6 +26,97 @@ exports.getAllListings = async (req, res) => {
       status: "fail",
       message: "Bloodclat",
       error: err.message,
+    });
+  }
+};
+
+exports.createListing = async (req, res, next) => {
+  try {
+    const newListing = await Listing.create(req.body);
+    // const newListing = await Listing.create({
+    //   price: req.body.price,
+    //   duration: req.body.duration,
+    //   country: req.body.country,
+    //   maxGuests: req.body.maxGuests,
+    // });
+
+    res.status(201).json({
+      status: "success",
+      data: {
+        newListing,
+      },
+    });
+  } catch (err) {
+    // console.log(err);
+    // res.status(404).json({
+    //   status: "fail",
+    //   message: "Bloodclat",
+    //   error: err,
+    // });
+    err.status = "fail";
+    err.statusCode = 400;
+    next(err);
+  }
+};
+
+exports.getListing = async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+    res.status(200).json({
+      status: "success",
+      data: {
+        listing,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({
+      status: "fail",
+      message: "Bloodclat",
+      error: err,
+    });
+  }
+};
+
+exports.updateListing = async (req, res) => {
+  try {
+    const listing = await Listing.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        listing,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+  }
+};
+
+exports.deleteListing = async (req, res) => {
+  try {
+    const listing = await Listing.findByIdAndDelete(req.params.id);
+
+    res.status(204).json({
+      status: "success",
+      data: {
+        listing,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
     });
   }
 };

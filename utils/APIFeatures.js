@@ -38,11 +38,11 @@ class APIFeatures {
     const pageNumber = this.queryObj.page * 1 || 1;
     const limit = this.queryObj.limit * 1 || 1;
     const skip = (pageNumber - 1) * limit;
-    const totalDoc = await this.model.countDocuments();
-    const maxPages = totalDoc / limit;
+    // const totalDoc = await this.model.countDocuments();
+    // const maxPages = totalDoc / limit;
 
-    if (pageNumber > maxPages || pageNumber < 0 || limit < 0)
-      throw new Error("This page does not exist");
+    // if (pageNumber > maxPages || pageNumber < 0 || limit < 0)
+    //   throw new Error("This page does not exist");
 
     this.query = this.query.skip(skip).limit(limit);
 
