@@ -59,7 +59,7 @@ exports.createListing = async (req, res, next) => {
   }
 };
 
-exports.getListing = async (req, res) => {
+exports.getListing = async (req, res, next) => {
   try {
     const listing = await Listing.findById(req.params.id);
     res.status(200).json({
@@ -69,12 +69,15 @@ exports.getListing = async (req, res) => {
       },
     });
   } catch (err) {
-    console.log(err);
-    res.status(404).json({
-      status: "fail",
-      message: "Bloodclat",
-      error: err,
-    });
+    // console.log(err);
+    // res.status(404).json({
+    //   status: "fail",
+    //   message: "Bloodclat",
+    //   error: err,
+    // });
+    err.status = "fail";
+    err.statusCode = 400;
+    next(err);
   }
 };
 

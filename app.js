@@ -2,6 +2,8 @@ const express = require("express");
 const Listing = require("./models/listingModel");
 const listingRouter = require("./routes/listingRoute");
 const AppError = require("./utils/AppError");
+const globalErrorHandler = require("./controllers/errorController");
+
 const app = express();
 
 // middleware
@@ -14,15 +16,6 @@ app.all("*", (req, res, next) => {
   next(new AppError(`This route ${req.originalUrl} does not exist`, 404));
 });
 
-app.use((err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || "error";
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-    error: err,
-  });
-});
+app.use(globalErrorHandler);
 
 module.exports = app;
