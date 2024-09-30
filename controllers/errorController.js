@@ -35,13 +35,16 @@ const handleCastError = (err) => {
 };
 
 const globalErrorHandler = (err, req, res, next) => {
+  console.log(err);
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
   if (process.env.NODE_ENV === "development") {
     sendErrorDev(res, err);
   } else {
-    let error = { ...err };
+    // do it like this because the message and statusCode are not enumerable
+    let error = { ...err, message: err.message, statusCode: err.statusCode };
+
     if (err.name === "ValidationError") {
       error = handleValidationError(err);
     }

@@ -2,124 +2,80 @@ const mongoose = require("mongoose");
 const Listing = require("../models/listingModel");
 const APIFeatures = require("../utils/APIFeatures");
 const AppError = require("../utils/AppError");
+const catchAsyncFunction = require("../utils/catchAsyncFunction");
 
-exports.getAllListings = async (req, res) => {
-  try {
-    const features = new APIFeatures(Listing, req.query)
-      .filter()
-      .sort()
-      .select();
-    // .paginate();
+exports.getAllListings = catchAsyncFunction(async (req, res) => {
+  const features = new APIFeatures(Listing, req.query).filter().sort().select();
+  // .paginate();
 
-    const listings = await features.query;
+  const listings = await features.query;
 
-    res.status(200).json({
-      status: "success",
-      results: listings.length,
-      data: {
-        listings,
-      },
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(404).json({
-      status: "fail",
-      message: "Bloodclat",
-      error: err.message,
-    });
+  res.status(200).json({
+    status: "success",
+    results: listings.length,
+    data: {
+      listings,
+    },
+  });
+});
+
+exports.createListing = catchAsyncFunction(async (req, res) => {
+  const newListing = await Listing.create(req.body);
+  // const newListing = await Listing.create({
+  //   price: req.body.price,
+  //   duration: req.body.duration,
+  //   country: req.body.country,
+  //   maxGuests: req.body.maxGuests,
+  // });
+
+  res.status(201).json({
+    status: "success",
+    data: {
+      newListing,
+    },
+  });
+});
+
+exports.getListing = catchAsyncFunction(async (req, res, next) => {
+  const listing = await Listing.findById(req.params.id);
+
+  if (!listing)
+    return next(new AppError("No listing with that ID was found", 404));
+  res.status(200).json({
+    status: "success",
+    data: {
+      listing,
+    },
+  });
+});
+
+exports.updateListing = catchAsyncFunction(async (req, res, next) => {
+  const listing = await Listing.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!listing) {
+    return next(new AppError("No document with that ID was found", 404));
   }
-};
 
-exports.createListing = async (req, res, next) => {
-  try {
-    const newListing = await Listing.create(req.body);
-    // const newListing = await Listing.create({
-    //   price: req.body.price,
-    //   duration: req.body.duration,
-    //   country: req.body.country,
-    //   maxGuests: req.body.maxGuests,
-    // });
+  res.status(200).json({
+    status: "success",
+    data: {
+      listing,
+    },
+  });
+});
 
-    res.status(201).json({
-      status: "success",
-      data: {
-        newListing,
-      },
-    });
-  } catch (err) {
-    // console.log(err);
-    // res.status(404).json({
-    //   status: "fail",
-    //   message: "Bloodclat",
-    //   error: err,
-    // });
-    err.status = "fail";
-    err.statusCode = 400;
-    next(err);
+exports.deleteListing = catchAsyncFunction(async (req, res, next) => {
+  const listing = await Listing.findByIdAndDelete(req.params.id);
+
+  if (!listing) {
+    return next(new AppError("No document with that ID was found", 404));
   }
-};
 
-exports.getListing = async (req, res, next) => {
-  try {
-    const listing = await Listing.findById(req.params.id);
-    res.status(200).json({
-      status: "success",
-      data: {
-        listing,
-      },
-    });
-  } catch (err) {
-    // console.log(err);
-    // res.status(404).json({
-    //   status: "fail",
-    //   message: "Bloodclat",
-    //   error: err,
-    // });
-    err.status = "fail";
-    err.statusCode = 400;
-    next(err);
-  }
-};
-
-exports.updateListing = async (req, res) => {
-  try {
-    const listing = await Listing.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    res.status(200).json({
-      status: "success",
-      data: {
-        listing,
-      },
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(404).json({
-      status: "fail",
-      message: "Something went wrong",
-      error: err,
-    });
-  }
-};
-
-exports.deleteListing = async (req, res) => {
-  try {
-    const listing = await Listing.findByIdAndDelete(req.params.id);
-
-    res.status(204).json({
-      status: "success",
-      data: {
-        listing,
-      },
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(404).json({
-      status: "fail",
-      message: "Something went wrong",
-      error: err,
-    });
-  }
-};
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
+});
