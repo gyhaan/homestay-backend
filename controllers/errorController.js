@@ -34,6 +34,13 @@ const handleCastError = (err) => {
   return new AppError(message, 400);
 };
 
+const handleDuplicateError = (err) => {
+  const [value] = Object.entries(err.keyValue);
+  const message = `The ${value[0]} ${value[1]} is already in use.`;
+
+  return new AppError(message, 400);
+};
+
 const globalErrorHandler = (err, req, res, next) => {
   console.log(err);
   err.statusCode = err.statusCode || 500;
@@ -51,6 +58,11 @@ const globalErrorHandler = (err, req, res, next) => {
     if (err.name === "CastError") {
       error = handleCastError(err);
     }
+
+    if (err.code === 11000) {
+      error = handleDuplicateError(err);
+    }
+
     sendErrorProd(res, error);
   }
 };
