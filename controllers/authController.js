@@ -36,3 +36,31 @@ exports.signUp = catchAsyncFunction(async (req, res, next) => {
     },
   });
 });
+
+exports.login = catchAsyncFunction(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  // 1) check if email and password are available
+  if (!email || !password) {
+    next(new AppError("Please provide both your email and password", 400));
+  }
+
+  // 2) check if email has an assigned user
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) {
+    next(new AppError("Incorrect email or password", 401));
+  }
+
+  const isPasswordCorrect = await user.comparePassword(password);
+  if (!isPasswordCorrect) {
+    next(new AppError("Incorrect email or password", 401));
+  }
+
+  // 3) create a token and send it
+  const token = signToken({ id: user._id });
+
+  res.status(200).json({
+    status: "success",
+    token,
+  });
+});
