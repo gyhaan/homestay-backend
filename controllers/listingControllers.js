@@ -5,6 +5,7 @@ const AppError = require("../utils/AppError");
 const catchAsyncFunction = require("../utils/catchAsyncFunction");
 
 exports.getAllListings = catchAsyncFunction(async (req, res) => {
+  console.log(req.user);
   const features = new APIFeatures(Listing, req.query).filter().sort().select();
   // .paginate();
 

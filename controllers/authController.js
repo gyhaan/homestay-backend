@@ -11,6 +11,16 @@ function signToken(payload) {
   return token;
 }
 
+async function verifyToken(req, token) {
+  jwt.verify(token, process.env.JWT_SECRET, async function (err, decoded) {
+    if (err) {
+      next(err);
+    } else {
+      req.user = await User.findById(decoded.id);
+    }
+  });
+}
+
 exports.signUp = catchAsyncFunction(async (req, res, next) => {
   const user = await User.create({
     name: req.body.name,
@@ -63,4 +73,43 @@ exports.login = catchAsyncFunction(async (req, res, next) => {
     status: "success",
     token,
   });
+});
+
+exports.protectRoute = catchAsyncFunction(async (req, res, next) => {
+  console.log(req.headers);
+
+  if (
+    !req.headers.authorization ||
+    !req.headers.authorization.startsWith("Bearer")
+  ) {
+    next(new AppError("You are not logged in", 401));
+  }
+
+  const token = req.headers.authorization.split(" ")[1];
+
+  const decodedData = jwt.verify(
+    token,
+    process.env.JWT_SECRET,
+    function (err, decode) {
+      if (err) {
+        if (err.name === "JsonWebTokenError") {
+          return next(new AppError("Invalid Token, please log in", 401));
+        }
+        if (err.name === "TokenExpiredError") {
+          return next(new AppError("Token Expired, please log in again", 401));
+        }
+        if (err.name === "NotBeforeError") {
+          return next(
+            new AppError("Token not active: Please try again later.", 401)
+          );
+        }
+      }
+      return decode;
+    }
+  );
+
+  const currentUser = await User.findById(decodedData.id);
+  console.log(currentUser);
+
+  next();
 });

@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const listingController = require("../controllers/listingControllers");
+const authController = require("../controllers/authController");
 
 router
   .route("/")
-  .get(listingController.getAllListings)
+  .get(authController.protectRoute, listingController.getAllListings)
   .post(listingController.createListing);
 
 router
