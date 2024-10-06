@@ -2,6 +2,8 @@ const AppError = require("../utils/AppError");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const catchAsyncFunction = require("../utils/catchAsyncFunction");
+const sendEmail = require("../utils/email");
+const crypto = require("crypto");
 
 function signToken(payload) {
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -82,7 +84,7 @@ exports.protectRoute = catchAsyncFunction(async (req, res, next) => {
     !req.headers.authorization ||
     !req.headers.authorization.startsWith("Bearer")
   ) {
-    next(new AppError("You are not logged in", 401));
+    return next(new AppError("You are not logged in", 401));
   }
 
   const token = req.headers.authorization.split(" ")[1];
@@ -108,8 +110,73 @@ exports.protectRoute = catchAsyncFunction(async (req, res, next) => {
     }
   );
 
+  // ????? Missing check if password has changed
+
   const currentUser = await User.findById(decodedData.id);
   console.log(currentUser);
 
   next();
+});
+
+exports.forgotPassword = catchAsyncFunction(async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    return next(new AppError("User doesn't exist", 401));
+  }
+
+  const resetToken = user.createResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/users/resetPassword/${resetToken}
+  `;
+
+  const message = `If you want to reset the password use this link ${resetURL}, if not don't mind this message`;
+
+  await sendEmail({
+    to: user.email,
+    subject: "Reset Password",
+    text: message,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: "Reset token sent",
+  });
+});
+
+exports.resetPassword = catchAsyncFunction(async (req, res, next) => {
+  if (!req.body.password || !req.body.passwordConfirm) {
+    return next(new AppError("Bad Request", 401));
+  }
+
+  const resetToken = crypto
+    .createHash("sha256")
+    .update(req.params.resetToken)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: resetToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  console.log(user);
+
+  if (!user) {
+    return next(new AppError("Reset Token Expired or Invalid", 400));
+  }
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    data: user,
+  });
 });
