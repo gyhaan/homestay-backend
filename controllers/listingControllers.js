@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
 const Listing = require("../models/listingModel");
+
 const APIFeatures = require("../utils/APIFeatures");
 const AppError = require("../utils/AppError");
 const catchAsyncFunction = require("../utils/catchAsyncFunction");
@@ -40,8 +40,10 @@ exports.createListing = catchAsyncFunction(async (req, res) => {
 exports.getListing = catchAsyncFunction(async (req, res, next) => {
   const listing = await Listing.findById(req.params.id);
 
-  if (!listing)
+  if (!listing) {
     return next(new AppError("No listing with that ID was found", 404));
+  }
+
   res.status(200).json({
     status: "success",
     data: {

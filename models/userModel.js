@@ -70,6 +70,15 @@ userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+userSchema.methods.checkPasswordChanged = function (jwtTimestamp) {
+  if (!this.passwordChangedAt) {
+    return next();
+  }
+
+  const time = this.passwordChangedAt.getTime();
+  return jwtTimestamp * 1000 > time;
+};
+
 userSchema.methods.createResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
 

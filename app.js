@@ -1,7 +1,8 @@
 const express = require("express");
-const Listing = require("./models/listingModel");
+
 const listingRouter = require("./routes/listingRoute");
 const userRouter = require("./routes/userRoute");
+
 const AppError = require("./utils/AppError");
 const globalErrorHandler = require("./controllers/errorController");
 
