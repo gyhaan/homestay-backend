@@ -26,7 +26,7 @@ exports.signUp = catchAsyncFunction(async (req, res, next) => {
   let token;
 
   try {
-    token = signToken({ id: user._id, email: user.email });
+    token = signToken({ id: user._id });
   } catch (err) {
     next(err);
   }

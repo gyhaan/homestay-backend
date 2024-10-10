@@ -5,7 +5,6 @@ const AppError = require("../utils/AppError");
 const catchAsyncFunction = require("../utils/catchAsyncFunction");
 
 exports.getAllListings = catchAsyncFunction(async (req, res) => {
-  console.log(req.user);
   const features = new APIFeatures(Listing, req.query).filter().sort().select();
   // .paginate();
 
@@ -38,7 +37,7 @@ exports.createListing = catchAsyncFunction(async (req, res) => {
 });
 
 exports.getListing = catchAsyncFunction(async (req, res, next) => {
-  const listing = await Listing.findById(req.params.id);
+  const listing = await Listing.findById(req.params.id).populate("reviews");
 
   if (!listing) {
     return next(new AppError("No listing with that ID was found", 404));

@@ -18,5 +18,8 @@ router.patch("/resetPassword/:resetToken", authController.resetPassword);
 //user
 router.route("/").get(userController.getAllUsers);
 router.route("/:id").get(userController.getUserById);
+router
+  .route("/updateUser")
+  .patch(authController.protectRoute, userController.updateUser);
 
 module.exports = router;
