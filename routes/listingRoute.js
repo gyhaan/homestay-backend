@@ -7,7 +7,11 @@ const authController = require("../controllers/authController");
 router
   .route("/")
   .get(authController.protectRoute, listingController.getAllListings)
-  .post(listingController.createListing);
+  .post(
+    listingController.uploadListingImages,
+    listingController.resizePhotos,
+    listingController.createListing
+  );
 
 router
   .route("/:id")

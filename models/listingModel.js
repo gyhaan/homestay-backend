@@ -22,6 +22,10 @@ const listingSchema = new mongoose.Schema(
         message: "Duration must be a number",
       },
     },
+    images: {
+      type: [String],
+      required: [true, "Please upload images of the listing"],
+    },
     country: {
       type: String,
       required: [true, "Country is required"],

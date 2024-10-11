@@ -120,7 +120,7 @@ exports.protectRoute = catchAsyncFunction(async (req, res, next) => {
   next();
 });
 
-exports.forgotPassword = catchAsyncFunction(async (req, res) => {
+exports.forgotPassword = catchAsyncFunction(async (req, res, next) => {
   // Find user by email
   const user = await User.findOne({ email: req.body.email });
 
@@ -155,6 +155,7 @@ exports.forgotPassword = catchAsyncFunction(async (req, res) => {
       data: "Reset token sent",
     });
   } catch (err) {
+    console.log(err);
     // Clear token if email fails to send
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpires = undefined;

@@ -1,22 +1,34 @@
 const nodemailer = require("nodemailer");
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+let transporter;
+
+if (process.env.NODE_ENV === "development") {
+  transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+} else {
+  transporter = nodemailer.createTransport({
+    service: "SendGrid",
+    auth: {
+      user: process.env.SENDGRID_USER,
+      pass: process.env.SENDGRID_PASS,
+    },
+  });
+}
 
 async function sendEmail(options) {
   // send mail with defined transport object
   const info = await transporter.sendMail({
-    from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // sender address
+    from: '"Maddison Foo Koch 👻" <ganzaowenyhaan@gmail.com>', // sender address
     to: options.to || "bar@example.com, baz@example.com", // list of receivers
     subject: options.subject || "Hello ✔", // Subject line
     text: options.text || "Hello world?", // plain text body
-    html: "<b>Hello world?</b>", // html body
+    html: `<p>${options.text}</p>`, // html body
   });
 
   console.log("Message sent: %s", info.messageId);
