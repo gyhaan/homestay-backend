@@ -20,10 +20,7 @@ mongoose
   .then(() => console.log("Mongo is connected"))
   .catch((err) => console.log(err.name, err.message));
 
-const port =
-  process.env.NODE_ENV === "development"
-    ? process.env.PORT_DEV
-    : process.env.PORT_PROD;
+const port = process.env.PORT || 3000;
 
 const server = app.listen(port, () => {
   console.log(`The server is live on port ${port}`);
