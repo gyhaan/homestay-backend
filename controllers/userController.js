@@ -1,3 +1,5 @@
+const Booking = require("../models/bookingModel");
+const Listing = require("../models/listingModel");
 const User = require("../models/userModel");
 const catchAsyncFunction = require("../utils/catchAsyncFunction");
 
@@ -78,5 +80,19 @@ exports.deleteUser = catchAsyncFunction(async (req, res) => {
   res.status(204).json({
     status: "success",
     data: null,
+  });
+});
+
+exports.getMyBookings = catchAsyncFunction(async (req, res, next) => {
+  const bookings = await Booking.find({ user: req.user._id });
+
+  const listingIds = bookings.map((el) => el.listing);
+  const listings = await Listing.find({ _id: { $in: listingIds } });
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      listings,
+    },
   });
 });

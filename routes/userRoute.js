@@ -17,6 +17,10 @@ router.patch("/resetPassword/:resetToken", authController.resetPassword);
 
 //user
 router.route("/").get(userController.getAllUsers);
+router
+  .route("/getBookings")
+  .get(authController.protectRoute, userController.getMyBookings);
+
 router.route("/:id").get(userController.getUserById);
 router
   .route("/updateUser")
