@@ -12,6 +12,17 @@ const listingSchema = new mongoose.Schema(
         message: "Price must be a number",
       },
     },
+    ratingsAverage: {
+      type: Number,
+      default: 0,
+      min: [0, "Rating must be above 1"],
+      max: [5, "Rating must be below 5.0"],
+      set: (val) => Math.round(val * 10) / 10,
+    },
+    ratingsQuantity: {
+      type: Number,
+      default: 0,
+    },
     duration: {
       type: Number,
       required: [true, "Duration is required"],

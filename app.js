@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 
 const listingRouter = require("./routes/listingRoute");
 const userRouter = require("./routes/userRoute");
@@ -10,6 +11,11 @@ const AppError = require("./utils/AppError");
 const globalErrorHandler = require("./controllers/errorController");
 
 const app = express();
+
+//cors issue
+app.use(cors());
+
+app.options("*", cors());
 
 // middleware
 app.use(express.json());
