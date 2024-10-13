@@ -20,12 +20,12 @@ const reviewSchema = new mongoose.Schema(
     },
     listing: {
       type: mongoose.Schema.ObjectId,
-      ref: "Tour",
+      ref: "listing",
       required: [true, "Listing is required"],
     },
     user: {
       type: mongoose.Schema.ObjectId,
-      ref: "User",
+      ref: "user",
       required: [true, "User is required"],
     },
   },
@@ -40,7 +40,8 @@ const reviewSchema = new mongoose.Schema(
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: "user",
-    select: "-__v -passwordChangedAt",
+    select:
+      "-__v -passwordChangedAt -passwordResetToken -passwordResetExpires -role",
   });
   // this.populate({
   //   path: "tour",
@@ -53,35 +54,36 @@ reviewSchema.pre(/^find/, function (next) {
   next();
 });
 
-reviewSchema.statics.calcAverageRatings = async function (tourId) {
+reviewSchema.statics.calcAverageRatings = async function (listingId) {
   const stats = await this.aggregate([
     {
-      $match: { tour: tourId },
+      $match: { listing: listingId },
     },
     {
       $group: {
-        _id: "$tour",
+        _id: "$listing",
         nRating: { $sum: 1 },
         avgRating: { $avg: "$rating" },
       },
     },
   ]);
+
   if (stats.length > 0) {
-    await Listing.findByIdAndUpdate(tourId, {
+    await Listing.findByIdAndUpdate(listingId, {
       ratingsAverage: stats[0].avgRating,
       ratingsQuantity: stats[0].nRating,
     });
   } else {
-    await Listing.findByIdAndUpdate(tourId, {
+    await Listing.findByIdAndUpdate(listingId, {
       ratingsAverage: 0,
       ratingsQuantity: 0,
     });
   }
 };
 
-reviewSchema.post("save", function () {
-  this.constructor.calcAverageRatings(this.tour);
-});
+// reviewSchema.post("save", function () {
+//   this.constructor.calcAverageRatings(this.tour);
+// });
 
 // Pre hook for findOneAnd* queries
 reviewSchema.pre(/^findOneAnd/, async function (next) {
@@ -94,15 +96,15 @@ reviewSchema.pre(/^findOneAnd/, async function (next) {
 reviewSchema.post(/^findOneAnd/, async function () {
   // 'this.r' is the document before it was modified.
   if (this.r) {
-    await this.r.constructor.calcAverageRatings(this.r.tour);
+    await this.r.constructor.calcAverageRatings(this.r.listing);
   }
 });
 
 reviewSchema.post("save", function () {
   console.log(this);
-  this.constructor.calcAverageRatings(this.tour);
+  this.constructor.calcAverageRatings(this.listing);
 });
 
-const Review = mongoose.model("Review", reviewSchema);
+const Review = mongoose.model("review", reviewSchema);
 
 module.exports = Review;
