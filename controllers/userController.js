@@ -96,3 +96,14 @@ exports.getMyBookings = catchAsyncFunction(async (req, res, next) => {
     },
   });
 });
+
+exports.getMyListings = catchAsyncFunction(async (req, res, next) => {
+  const listings = await Listing.find({ user: req.user._id });
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      listings,
+    },
+  });
+});

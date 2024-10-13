@@ -34,8 +34,14 @@ exports.resizePhotos = async (req, res, next) => {
     req.files.map(async (el, i) => {
       const filename = `${el.originalname}-${Date.now()}.webp`;
       await sharp(el.buffer)
-        .resize(350, 350)
-        .webp({ quality: 90, lossless: true })
+        .resize(350, 350, {
+          fit: "cover",
+          withoutEnlargement: true,
+        })
+        .webp({
+          quality: 80,
+          nearLossless: true,
+        })
         .toFile(`public/img/${filename}`);
 
       req.body.images.push(filename);
@@ -61,8 +67,6 @@ exports.getAllListings = catchAsyncFunction(async (req, res) => {
 });
 
 exports.createListing = catchAsyncFunction(async (req, res) => {
-  console.log(req.files);
-  console.log(req.body);
   const newListing = await Listing.create(req.body);
   // const newListing = await Listing.create({
   //   price: req.body.price,

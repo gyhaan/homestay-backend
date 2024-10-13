@@ -6,8 +6,10 @@ const authController = require("../controllers/authController");
 
 router
   .route("/")
-  .get(authController.protectRoute, listingController.getAllListings)
+  .get(listingController.getAllListings)
   .post(
+    authController.protectRoute,
+    authController.restrictTo("guide"),
     listingController.uploadListingImages,
     listingController.resizePhotos,
     listingController.createListing
@@ -16,7 +18,15 @@ router
 router
   .route("/:id")
   .get(listingController.getListing)
-  .patch(listingController.updateListing)
-  .delete(listingController.deleteListing);
+  .patch(
+    authController.protectRoute,
+    authController.restrictTo("guide"),
+    listingController.updateListing
+  )
+  .delete(
+    authController.protectRoute,
+    authController.restrictTo("guide"),
+    listingController.deleteListing
+  );
 
 module.exports = router;

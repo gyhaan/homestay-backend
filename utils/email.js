@@ -30,8 +30,6 @@ async function sendEmail(options) {
     text: options.text || "Hello world?", // plain text body
     html: `<p>${options.text}</p>`, // html body
   });
-
-  console.log("Message sent: %s", info.messageId);
   // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
 }
 

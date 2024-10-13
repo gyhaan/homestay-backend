@@ -57,6 +57,11 @@ const listingSchema = new mongoose.Schema(
         message: "Maximum number of guests must be a number",
       },
     },
+    user: {
+      type: mongoose.Schema.ObjectId,
+      ref: "user",
+      required: true,
+    },
     booked: {
       type: Boolean,
       required: true,
@@ -79,6 +84,16 @@ listingSchema.virtual("reviews", {
   ref: "review",
   foreignField: "listing",
   localField: "_id",
+});
+
+listingSchema.pre("find", function (next) {
+  this.populate({
+    path: "user",
+    select:
+      "-__v -passwordChangedAt -passwordResetToken -passwordResetExpires -role",
+  });
+
+  next();
 });
 
 const Listing = mongoose.model("listing", listingSchema);

@@ -21,6 +21,14 @@ router
   .route("/getBookings")
   .get(authController.protectRoute, userController.getMyBookings);
 
+router
+  .route("/getMyListings")
+  .get(
+    authController.protectRoute,
+    authController.restrictTo("guide"),
+    userController.getMyListings
+  );
+
 router.route("/:id").get(userController.getUserById);
 router
   .route("/updateUser")

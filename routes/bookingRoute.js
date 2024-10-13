@@ -6,6 +6,10 @@ const authController = require("../controllers/authController");
 
 router
   .route("/")
-  .post(authController.protectRoute, bookingController.createBooking);
+  .post(
+    authController.protectRoute,
+    authController.restrictTo("user"),
+    bookingController.createBooking
+  );
 
 module.exports = router;

@@ -101,7 +101,6 @@ reviewSchema.post(/^findOneAnd/, async function () {
 });
 
 reviewSchema.post("save", function () {
-  console.log(this);
   this.constructor.calcAverageRatings(this.listing);
 });
 

@@ -68,6 +68,18 @@ exports.login = catchAsyncFunction(async (req, res, next) => {
   });
 });
 
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You are not allowed to perform this operation", 403)
+      );
+    }
+
+    next();
+  };
+};
+
 exports.protectRoute = catchAsyncFunction(async (req, res, next) => {
   // Check for authorization token
   if (
@@ -155,7 +167,6 @@ exports.forgotPassword = catchAsyncFunction(async (req, res, next) => {
       data: "Reset token sent",
     });
   } catch (err) {
-    console.log(err);
     // Clear token if email fails to send
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpires = undefined;
