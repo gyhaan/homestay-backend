@@ -64,6 +64,7 @@ exports.login = catchAsyncFunction(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
+    role: user.role,
     token,
   });
 });
