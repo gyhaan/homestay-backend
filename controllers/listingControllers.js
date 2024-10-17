@@ -1,11 +1,22 @@
 const multer = require("multer");
 const sharp = require("sharp");
+const streamifier = require("streamifier");
 
 const Listing = require("../models/listingModel");
 
 const APIFeatures = require("../utils/APIFeatures");
 const AppError = require("../utils/AppError");
 const catchAsyncFunction = require("../utils/catchAsyncFunction");
+
+const cloudinary = require("cloudinary").v2;
+
+// Configure Cloudinary with your credentials
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  timeout: 60000,
+});
 
 const multerStorage = multer.memoryStorage();
 
@@ -27,13 +38,19 @@ exports.uploadListingImages = upload.array("images", 3);
 exports.resizePhotos = async (req, res, next) => {
   req.body.images = [];
   if (!req.files.length) {
-    next();
+    return next();
   }
 
   await Promise.all(
-    req.files.map(async (el, i) => {
-      const filename = `${el.originalname}-${Date.now()}.webp`;
-      await sharp(el.buffer)
+    req.files.map(async (el) => {
+      // Sanitize the filename by replacing spaces and special characters
+      const sanitizedFilename = el.originalname
+        .replace(/[^a-zA-Z0-9-_]/g, "_") // Replace any character that is not alphanumeric, dash, or underscore
+        .replace(/\s+/g, "_") // Replace spaces with underscores
+        .concat(`-${Date.now()}`);
+
+      // Resize the image using Sharp
+      const buffer = await sharp(el.buffer)
         .resize(350, 350, {
           fit: "cover",
           withoutEnlargement: true,
@@ -42,9 +59,32 @@ exports.resizePhotos = async (req, res, next) => {
           quality: 80,
           nearLossless: true,
         })
-        .toFile(`public/img/${filename}`);
+        .toBuffer();
 
-      req.body.images.push(filename);
+      // Upload to Cloudinary
+      await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "image",
+            folder: "listings",
+            public_id: sanitizedFilename,
+            format: "webp",
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Cloudinary upload error:", error);
+              reject(new AppError("Failed to upload image", 500));
+            } else {
+              // Add the uploaded image URL to req.body.images
+              req.body.images.push(result.secure_url);
+              resolve();
+            }
+          }
+        );
+
+        // Stream the buffer to Cloudinary
+        streamifier.createReadStream(buffer).pipe(uploadStream);
+      });
     })
   );
 

@@ -82,7 +82,7 @@ userSchema.methods.comparePassword = async function (password) {
 
 userSchema.methods.checkPasswordChanged = function (jwtTimestamp) {
   if (!this.passwordChangedAt) {
-    return next();
+    return true;
   }
 
   const time = this.passwordChangedAt.getTime();
