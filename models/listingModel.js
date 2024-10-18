@@ -86,7 +86,7 @@ listingSchema.virtual("reviews", {
   localField: "_id",
 });
 
-listingSchema.pre("find", function (next) {
+listingSchema.pre(/^find/, function (next) {
   this.populate({
     path: "user",
     select:
