@@ -107,3 +107,14 @@ exports.getMyListings = catchAsyncFunction(async (req, res, next) => {
     },
   });
 });
+
+exports.getMe = catchAsyncFunction(async (req, res, next) => {
+  const user = await User.findOne({ _id: req.user._id });
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+});
