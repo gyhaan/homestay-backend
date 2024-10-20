@@ -1,5 +1,16 @@
 const mongoose = require("mongoose");
 
+const DateIntervalSchema = new mongoose.Schema({
+  start: {
+    type: Date,
+    required: [true, "Start date is required"],
+  },
+  end: {
+    type: Date,
+    required: [true, "End date is required"],
+  },
+});
+
 const listingSchema = new mongoose.Schema(
   {
     price: {
@@ -62,16 +73,9 @@ const listingSchema = new mongoose.Schema(
       ref: "user",
       required: true,
     },
-    booked: {
-      type: Boolean,
-      required: true,
-      default: false,
-      validate: {
-        validator: function (value) {
-          return typeof value === "boolean"; // Ensures it's a boolean
-        },
-        message: "Booked must be a boolean",
-      },
+    unavailableDates: {
+      type: [DateIntervalSchema],
+      required: false,
     },
   },
   {
