@@ -13,7 +13,16 @@ const bookingSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
+  },
+  endAt: {
+    type: Date,
+    validate: {
+      validator: function (value) {
+        return value > this.createdAt;
+      },
+      message: "The End Date of the tour must be greater than the start!!",
+    },
   },
 });
 
