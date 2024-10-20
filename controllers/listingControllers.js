@@ -113,6 +113,7 @@ exports.createListing = catchAsyncFunction(async (req, res) => {
     duration: req.body.duration,
     country: req.body.country,
     maxGuests: req.body.maxGuests,
+    images: req.body.images,
     user: req.user._id,
   });
 
