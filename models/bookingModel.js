@@ -11,15 +11,22 @@ const bookingSchema = new mongoose.Schema({
     ref: "user",
     required: [true, "Booking must belong to a Tour!"],
   },
-  createdAt: {
+  startDate: {
     type: Date,
     default: Date.now,
-  },
-  endAt: {
-    type: Date,
     validate: {
       validator: function (value) {
-        return value > this.createdAt;
+        return value >= Date.now() - 10000; // Validate that startDate is in the future
+      },
+      message: "The Start Date must be in the present or future!", // Updated error message
+    },
+  },
+  endDate: {
+    type: Date,
+    required: true,
+    validate: {
+      validator: function (value) {
+        return value > this.startDate;
       },
       message: "The End Date of the tour must be greater than the start!!",
     },
