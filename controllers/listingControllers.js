@@ -107,13 +107,14 @@ exports.getAllListings = catchAsyncFunction(async (req, res) => {
 });
 
 exports.createListing = catchAsyncFunction(async (req, res) => {
-  const newListing = await Listing.create(req.body);
-  // const newListing = await Listing.create({
-  //   price: req.body.price,
-  //   duration: req.body.duration,
-  //   country: req.body.country,
-  //   maxGuests: req.body.maxGuests,
-  // });
+  // const newListing = await Listing.create(req.body);
+  const newListing = await Listing.create({
+    price: req.body.price,
+    duration: req.body.duration,
+    country: req.body.country,
+    maxGuests: req.body.maxGuests,
+    user: req.user._id,
+  });
 
   res.status(201).json({
     status: "success",
