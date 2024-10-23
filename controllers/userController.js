@@ -84,10 +84,12 @@ exports.deleteUser = catchAsyncFunction(async (req, res) => {
 });
 
 exports.getMyBookings = catchAsyncFunction(async (req, res, next) => {
-  const bookings = await Booking.find({ user: req.user._id });
+  const listings = await Booking.find({ user: req.user._id }).populate(
+    "listing"
+  );
 
-  const listingIds = bookings.map((el) => el.listing);
-  const listings = await Listing.find({ _id: { $in: listingIds } });
+  // const listingIds = bookings.map((el) => el.listing);
+  // const listings = await Listing.find({ _id: { $in: listingIds } });
 
   res.status(200).json({
     status: "success",
