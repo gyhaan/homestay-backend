@@ -9,11 +9,17 @@ const bookingSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     ref: "user",
-    required: [true, "Booking must belong to a Tour!"],
+    required: [true, "Booking must have a tourist"],
+  },
+  guide: {
+    type: mongoose.Schema.ObjectId,
+    ref: "user",
+    required: [true, "Booking must have a guide"],
   },
   startDate: {
     type: Date,
     default: Date.now,
+    required: true,
     validate: {
       validator: function (value) {
         return value >= Date.now() - 10000; // Validate that startDate is in the future

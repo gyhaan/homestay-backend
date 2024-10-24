@@ -53,12 +53,12 @@ exports.resizePhotos = async (req, res, next) => {
       const buffer = await sharp(el.buffer)
         .resize(350, 350, {
           fit: "cover",
-          withoutEnlargement: true,
         })
         .webp({
           quality: 80,
           nearLossless: true,
         })
+        .withMetadata({}) // This removes the metadata
         .toBuffer();
 
       // Upload to Cloudinary

@@ -6,6 +6,8 @@ exports.createBooking = catchAsyncFunction(async (req, res, next) => {
   const booking = await Booking.create({
     listing: req.body.listing,
     user: req.body.user || req.user._id,
+    guide: req.body.guide,
+    startDate: req.body.startDate,
     endDate: req.body.endDate,
   });
 
