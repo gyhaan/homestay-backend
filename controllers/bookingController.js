@@ -25,3 +25,16 @@ exports.createBooking = catchAsyncFunction(async (req, res, next) => {
     },
   });
 });
+
+exports.deleteBooking = catchAsyncFunction(async (req, res, next) => {
+  const booking = await Booking.findByIdAndDelete(req.params.id);
+
+  if (!booking) {
+    return next(new AppError("No document with that ID was found", 404));
+  }
+
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
+});

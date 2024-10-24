@@ -12,4 +12,12 @@ router
     bookingController.createBooking
   );
 
+router
+  .route("/:id")
+  .delete(
+    authController.protectRoute,
+    authController.restrictTo("user"),
+    bookingController.deleteBooking
+  );
+
 module.exports = router;
