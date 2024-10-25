@@ -110,6 +110,19 @@ exports.getMyListings = catchAsyncFunction(async (req, res, next) => {
   });
 });
 
+exports.getGuidesBookings = catchAsyncFunction(async (req, res, next) => {
+  const listings = await Booking.find({ guide: req.body.id }).populate(
+    "listing"
+  );
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      listings,
+    },
+  });
+});
+
 exports.getMe = catchAsyncFunction(async (req, res, next) => {
   const user = await User.findOne({ _id: req.user._id });
 

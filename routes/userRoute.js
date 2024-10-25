@@ -22,6 +22,10 @@ router
   .get(authController.protectRoute, userController.getMyBookings);
 
 router
+  .route("/getGuideBookings")
+  .get(authController.protectRoute, userController.getGuidesBookings);
+
+router
   .route("/getMyListings")
   .get(
     authController.protectRoute,
@@ -29,6 +33,9 @@ router
     userController.getMyListings
   );
 
+router
+  .route("/getGuideBookings")
+  .get(authController.protectRoute, userController.getMe);
 router.route("/getMe").get(authController.protectRoute, userController.getMe);
 
 router.route("/:id").get(userController.getUserById);
