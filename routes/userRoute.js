@@ -44,9 +44,11 @@ router
 router
   .route("/getGuideBookings")
   .get(authController.protectRoute, userController.getMe);
+
 router.route("/getMe").get(authController.protectRoute, userController.getMe);
 
 router.route("/:id").get(userController.getUserById);
+
 router
   .route("/updateUser")
   .patch(authController.protectRoute, userController.updateUser);

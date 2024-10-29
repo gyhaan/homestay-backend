@@ -23,13 +23,12 @@ exports.signUp = catchAsyncFunction(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  let token;
+  const token = signToken({ id: user._id });
 
-  try {
-    token = signToken({ id: user._id });
-  } catch (err) {
-    next(err);
-  }
+  res.cookie("jwt", token, {
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    httpOnly: true,
+  });
 
   res.status(201).json({
     status: "success",
@@ -61,6 +60,11 @@ exports.login = catchAsyncFunction(async (req, res, next) => {
 
   // 3) create a token and send it
   const token = signToken({ id: user._id });
+
+  res.cookie("jwt", token, {
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    httpOnly: true,
+  });
 
   res.status(200).json({
     status: "success",
