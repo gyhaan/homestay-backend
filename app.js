@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const listingRouter = require("./routes/listingRoute");
 const userRouter = require("./routes/userRoute");
@@ -19,6 +20,7 @@ app.options("*", cors());
 
 // middleware
 app.use(express.json());
+app.use(cookieParser());
 
 // routes
 app.use("/api/v1/listings", listingRouter);

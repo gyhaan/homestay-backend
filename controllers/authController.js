@@ -32,7 +32,6 @@ exports.signUp = catchAsyncFunction(async (req, res, next) => {
 
   res.status(201).json({
     status: "success",
-    token,
     data: {
       user,
     },
@@ -69,7 +68,6 @@ exports.login = catchAsyncFunction(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     role: user.role,
-    token,
   });
 });
 
@@ -87,15 +85,20 @@ exports.restrictTo = (...roles) => {
 
 exports.protectRoute = catchAsyncFunction(async (req, res, next) => {
   // Check for authorization token
-  if (
-    !req.headers.authorization ||
-    !req.headers.authorization.startsWith("Bearer")
-  ) {
+  // if (
+  //   !req.headers.authorization ||
+  //   !req.headers.authorization.startsWith("Bearer")
+  // ) {
+  //   return next(new AppError("You are not logged in", 401));
+  // }
+
+  if (!req.cookies || !req.cookies.jwt) {
     return next(new AppError("You are not logged in", 401));
   }
 
   // Extract token from header
-  const token = req.headers.authorization.split(" ")[1];
+  // const token = req.headers.authorization.split(" ")[1];
+  const token = req.cookies.jwt;
 
   // Verify token and handle possible errors
   const decodedData = await new Promise((resolve, reject) => {
