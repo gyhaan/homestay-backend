@@ -26,9 +26,10 @@ exports.signUp = catchAsyncFunction(async (req, res, next) => {
   const token = signToken({ id: user._id });
 
   res.cookie("jwt", token, {
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    // httpOnly: true,
-    sameSite: "None",
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiration
+    httpOnly: true,
+    secure: false, // Set to false for localhost (only for development)
+    sameSite: "Lax",
   });
 
   res.status(201).json({
@@ -62,9 +63,10 @@ exports.login = catchAsyncFunction(async (req, res, next) => {
   const token = signToken({ id: user._id });
 
   res.cookie("jwt", token, {
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    // httpOnly: true,
-    sameSite: "None",
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiration
+    httpOnly: true,
+    secure: false, // Set to false for localhost (only for development)
+    sameSite: "Lax",
   });
 
   res.status(200).json({
