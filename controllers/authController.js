@@ -27,8 +27,8 @@ exports.signUp = catchAsyncFunction(async (req, res, next) => {
 
   res.cookie("jwt", token, {
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiration
-    httpOnly: true,
-    secure: false, // Set to false for localhost (only for development)
+    // httpOnly: true,
+    secure: true, // Set to false for localhost (only for development)
     sameSite: "Lax",
   });
 
@@ -64,9 +64,9 @@ exports.login = catchAsyncFunction(async (req, res, next) => {
 
   res.cookie("jwt", token, {
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiration
-    httpOnly: true,
-    secure: false, // Set to false for localhost (only for development)
-    sameSite: "Lax",
+    // httpOnly: true,
+    secure: true, // Set to false for localhost (only for development)
+    sameSite: "None",
   });
 
   res.status(200).json({
