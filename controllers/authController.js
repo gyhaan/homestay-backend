@@ -23,17 +23,17 @@ exports.signUp = catchAsyncFunction(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  let token;
+  const token = signToken({ id: user._id });
 
-  try {
-    token = signToken({ id: user._id });
-  } catch (err) {
-    next(err);
-  }
+  res.cookie("jwt", token, {
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiration
+    // httpOnly: true,
+    secure: true, // Set to false for localhost (only for development)
+    sameSite: "Lax",
+  });
 
   res.status(201).json({
     status: "success",
-    token,
     data: {
       user,
     },
@@ -62,10 +62,16 @@ exports.login = catchAsyncFunction(async (req, res, next) => {
   // 3) create a token and send it
   const token = signToken({ id: user._id });
 
+  res.cookie("jwt", token, {
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiration
+    // httpOnly: true,
+    secure: true, // Set to false for localhost (only for development)
+    sameSite: "None",
+  });
+
   res.status(200).json({
     status: "success",
     role: user.role,
-    token,
   });
 });
 
@@ -83,15 +89,20 @@ exports.restrictTo = (...roles) => {
 
 exports.protectRoute = catchAsyncFunction(async (req, res, next) => {
   // Check for authorization token
-  if (
-    !req.headers.authorization ||
-    !req.headers.authorization.startsWith("Bearer")
-  ) {
+  // if (
+  //   !req.headers.authorization ||
+  //   !req.headers.authorization.startsWith("Bearer")
+  // ) {
+  //   return next(new AppError("You are not logged in", 401));
+  // }
+
+  if (!req.cookies || !req.cookies.jwt) {
     return next(new AppError("You are not logged in", 401));
   }
 
   // Extract token from header
-  const token = req.headers.authorization.split(" ")[1];
+  // const token = req.headers.authorization.split(" ")[1];
+  const token = req.cookies.jwt;
 
   // Verify token and handle possible errors
   const decodedData = await new Promise((resolve, reject) => {

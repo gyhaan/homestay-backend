@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const listingRouter = require("./routes/listingRoute");
 const userRouter = require("./routes/userRoute");
@@ -13,12 +14,28 @@ const globalErrorHandler = require("./controllers/errorController");
 const app = express();
 
 //cors issue
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173", // Local development
+  "https://homestay-frontend-ten.vercel.app", // Production frontend
+];
 
-app.options("*", cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps, Postman)
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, origin); // Allow the origin
+      } else {
+        callback(new Error("Not allowed by CORS")); // Reject the origin
+      }
+    },
+    credentials: true, // Allow cookies and credentials
+  })
+);
 
 // middleware
 app.use(express.json());
+app.use(cookieParser());
 
 // routes
 app.use("/api/v1/listings", listingRouter);
