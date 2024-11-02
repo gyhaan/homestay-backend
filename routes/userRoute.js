@@ -19,11 +19,19 @@ router.patch("/resetPassword/:resetToken", authController.resetPassword);
 router.route("/").get(userController.getAllUsers);
 router
   .route("/getBookings")
-  .get(authController.protectRoute, userController.getMyBookings);
+  .get(
+    authController.protectRoute,
+    authController.restrictTo("user"),
+    userController.getMyBookings
+  );
 
 router
   .route("/getGuideBookings")
-  .post(authController.protectRoute, userController.getGuidesBookings);
+  .get(
+    authController.protectRoute,
+    authController.restrictTo("guide"),
+    userController.getGuidesBookings
+  );
 
 router
   .route("/getMyListings")
@@ -36,9 +44,11 @@ router
 router
   .route("/getGuideBookings")
   .get(authController.protectRoute, userController.getMe);
+
 router.route("/getMe").get(authController.protectRoute, userController.getMe);
 
 router.route("/:id").get(userController.getUserById);
+
 router
   .route("/updateUser")
   .patch(authController.protectRoute, userController.updateUser);
