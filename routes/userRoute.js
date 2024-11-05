@@ -23,7 +23,7 @@ router
 
 router
   .route("/getGuideBookings")
-  .post(authController.protectRoute, userController.getGuidesBookings);
+  .get(authController.protectRoute, userController.getGuidesBookings);
 
 router
   .route("/getMyListings")
