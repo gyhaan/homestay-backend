@@ -42,9 +42,6 @@ exports.resizePhotos = async (req, res, next) => {
     return next();
   }
 
-  // Sort images by original filename
-  req.files.sort((a, b) => a.originalname.localeCompare(b.originalname));
-
   await Promise.all(
     req.files.map(async (el) => {
       const sanitizedFilename = el.originalname
@@ -54,8 +51,7 @@ exports.resizePhotos = async (req, res, next) => {
 
       const buffer = await sharp(el.buffer)
         .resize(350, 350, { fit: "cover" })
-        .webp({ quality: 80, nearLossless: true })
-        .withMetadata()
+        .webp({ quality: 90, nearLossless: true })
         .toBuffer();
 
       await new Promise((resolve, reject) => {
