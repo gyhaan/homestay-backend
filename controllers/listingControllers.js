@@ -37,31 +37,27 @@ exports.uploadListingImages = upload.array("images", 3);
 
 exports.resizePhotos = async (req, res, next) => {
   req.body.images = [];
+
   if (!req.files.length) {
     return next();
   }
 
+  // Sort images by original filename
+  req.files.sort((a, b) => a.originalname.localeCompare(b.originalname));
+
   await Promise.all(
     req.files.map(async (el) => {
-      // Sanitize the filename by replacing spaces and special characters
       const sanitizedFilename = el.originalname
-        .replace(/[^a-zA-Z0-9-_]/g, "_") // Replace any character that is not alphanumeric, dash, or underscore
-        .replace(/\s+/g, "_") // Replace spaces with underscores
+        .replace(/[^a-zA-Z0-9-_]/g, "_")
+        .replace(/\s+/g, "_")
         .concat(`-${Date.now()}`);
 
-      // Resize the image using Sharp
       const buffer = await sharp(el.buffer)
-        .resize(350, 350, {
-          fit: "cover",
-        })
-        .webp({
-          quality: 80,
-          nearLossless: true,
-        })
-        .withMetadata({}) // This removes the metadata
+        .resize(350, 350, { fit: "cover" })
+        .webp({ quality: 80, nearLossless: true })
+        .withMetadata()
         .toBuffer();
 
-      // Upload to Cloudinary
       await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
@@ -75,14 +71,12 @@ exports.resizePhotos = async (req, res, next) => {
               console.error("Cloudinary upload error:", error);
               reject(new AppError("Failed to upload image", 500));
             } else {
-              // Add the uploaded image URL to req.body.images
               req.body.images.push(result.secure_url);
               resolve();
             }
           }
         );
 
-        // Stream the buffer to Cloudinary
         streamifier.createReadStream(buffer).pipe(uploadStream);
       });
     })
